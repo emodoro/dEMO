@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Enrique Perez-Riesgo" />
+
+<meta name="date" content="2018-02-20" />
+
+<title>dEMO. An easy work flow</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">dEMO. An easy work flow</h1>
+<h4 class="author"><em>Enrique Perez-Riesgo</em></h4>
+<h4 class="date"><em>2018-02-20</em></h4>
+
+
+
+<div id="introduction" class="section level1">
+<h1>1. Introduction</h1>
+<p>dEMO method allows both estimating the confidencial interval of fold change and testing the differential expression from RNA-seq data sets. Here, a comprensive differential expression analysis work flow is proposed. Thus, this vignette is split into different points acording to several important concepts in terms of RNA-seq data analysis. Data sets employed belong to <a href="http://www.ncbi.nlm.nih.gov/pubmed/24926665">Airway</a> R pakage.</p>
+</div>
+<div id="loading-data-set." class="section level1">
+<h1>2. Loading Data set.</h1>
+<p>At first, data sets have to be loaded as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(airway)
+<span class="kw">data</span>(<span class="st">&quot;airway&quot;</span>)</code></pre></div>
+<p>Secondly, an ExpressionSet object is build with data sets above loaded:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Expression data set</span>
+expression&lt;-<span class="kw">assay</span>(airway)
+<span class="co">#phenotype datas</span>
+design&lt;-<span class="kw">colData</span>(airway)
+design&lt;-design[,<span class="kw">c</span>(<span class="st">&quot;SampleName&quot;</span>, <span class="st">&quot;cell&quot;</span>, <span class="st">&quot;dex&quot;</span>)]
+design$GROUP&lt;-<span class="kw">ifelse</span>(design$dex ==<span class="st"> &quot;trt&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)
+
+design$Sample&lt;-<span class="kw">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;E&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;G&quot;</span>, <span class="st">&quot;H&quot;</span>)
+design$ID&lt;-<span class="kw">rownames</span>(design)
+<span class="kw">rownames</span>(design)&lt;-design$Sample
+
+phenodatas&lt;-design
+
+<span class="co">#change names of samples</span>
+<span class="kw">colnames</span>(expression)&lt;-<span class="kw">rownames</span>(phenodatas)
+
+<span class="co">#ExpressionSet</span>
+eset&lt;-<span class="kw">new</span>(<span class="st">&quot;ExpressionSet&quot;</span>, <span class="dt">exprs=</span>expression,<span class="dt">annotation=</span><span class="st">&quot;hsa&quot;</span>)
+<span class="kw">pData</span>(eset)&lt;-<span class="kw">data.frame</span>(phenodatas)</code></pre></div>
+</div>
+<div id="filtration." class="section level1">
+<h1>3. Filtration.</h1>
+<p>RNA-seq data sets contain a large amount of values equal to zero, since not all genes are expressed by every kind of cell, and that is very important relative to filtering.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tabla0&lt;-<span class="kw">prop.table</span>(<span class="kw">table</span>(<span class="kw">rowSums</span>(<span class="kw">exprs</span>(eset))==<span class="dv">0</span>))
+tabla0</code></pre></div>
+<pre><code>## 
+##    FALSE     TRUE 
+## 0.522121 0.477879</code></pre>
+<p>For instance, the expression of the 47.79% of genes are qual to zero, so they are not expressed. Thus, those genes which are not expressed, that may not play any role or show no relationship to phenotype may be removed from the data expression set. Nevertheless, we need to be careful in this step to avoid removing genes which marginally do not show any kind of activity in a cell but may act jointly with other genes.</p>
+<p>An option is that known as K over A, where those genes whose expression profile is greater than A for, at least, k sampler percondition. A value could be the first quantile of expression data after remove those genes whose expression profile is zero. Regarding sample size K, it is that sample size corresponding to smaller group (condition). Notably, this filtered does not take into account the origin of each sample in terms of what condition they belong to. Before above, raw data are corrected against differences between samples in terms of deep sequencing, expressed as <em>Counts per Million (CPM)</em>. Figure 1 shows the histogram of non-filtered data (figure 1a) and filtered data (figure 1b).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#At first, differences between library sizes are corrected, and then those genes whise expression profile is zero are removed. Two ExpressionSets are filtered, where the first one stores the raw data (eset) and the second one stores the corrected data (esetF) </span>
+esetF &lt;-<span class="st"> </span>eset
+<span class="kw">exprs</span>(esetF) &lt;-<span class="st"> </span>(<span class="kw">t</span>(<span class="kw">t</span>(<span class="kw">exprs</span>(esetF)) /<span class="st"> </span>(<span class="kw">apply</span>(<span class="kw">exprs</span>(esetF), <span class="dv">2</span>, sum)))) *<span class="st"> </span><span class="dv">10</span> ^<span class="st"> </span><span class="dv">6</span>
+esetF &lt;-<span class="st"> </span>esetF[<span class="kw">rowSums</span>(<span class="kw">exprs</span>(eset)) &gt;<span class="st"> </span><span class="dv">0</span>]
+eset &lt;-<span class="st"> </span>eset[<span class="kw">rowSums</span>(<span class="kw">exprs</span>(eset)) &gt;<span class="st"> </span><span class="dv">0</span>]
+<span class="co">#Quantiles are alculated and the minimum exression value A is fixed. In this case, the first quantile is selected as A value. </span>
+A &lt;-<span class="st"> </span><span class="kw">quantile</span>(<span class="kw">exprs</span>(esetF), <span class="fl">0.5</span>)
+datos_condicion &lt;-<span class="st"> </span><span class="kw">exprs</span>(esetF) &gt;<span class="st"> </span>A
+<span class="co">#Filtred. The minimum number of K samples which have to show an expression greater or equal to A. K is the number of individuals of the smaller group tested.  </span>
+K=<span class="dv">4</span>
+esetF&lt;-esetF[<span class="kw">apply</span>(datos_condicion,<span class="dv">1</span>,sum)&gt;=K]
+eset&lt;-eset[<span class="kw">apply</span>(datos_condicion,<span class="dv">1</span>,sum)&gt;=K]
+<span class="co">#histogram</span>
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
+x&lt;-<span class="kw">hist</span>(<span class="kw">assay</span>(airway), <span class="dt">breaks=</span><span class="st">&quot;Scott&quot;</span>, <span class="dt">main=</span><span class="st">&quot;a) Histogram </span><span class="ch">\n</span><span class="st"> Raw Datas&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;counts&quot;</span>)
+<span class="kw">hist</span>(<span class="kw">exprs</span>(esetF), <span class="dt">breaks=</span><span class="st">&quot;Scott&quot;</span>, <span class="dt">main=</span><span class="st">&quot;b) Histogram rlog </span><span class="ch">\n</span><span class="st"> dFiltered Datas&quot;</span>,<span class="dt">xlab =</span> <span class="st">&quot;counts)&quot;</span>, <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="kw">max</span>(x$mids)[<span class="dv">1</span>]))</code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /> <strong>Figure 1. Histograms a) Raw data non-filtered b) Filtered datas.</strong></p>
+<p>After filtered, the number of genes from expression matrix have been reducted from 64102 to 16817.</p>
+</div>
+<div id="data-normalization." class="section level1">
+<h1>4. Data Normalization.</h1>
+<p>As is observed below, data from each sample show differences between them in terms of data distributions. In order to show data with an adequate scale, data are log2 transformated.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">boxplot</span>(<span class="kw">log</span>(<span class="kw">exprs</span>(eset)+<span class="dv">1</span>,<span class="dv">2</span>), <span class="dt">main=</span><span class="st">&quot;Boxplot log2&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;A&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Sample&quot;</span>,<span class="dt">names=</span><span class="kw">as.character</span>(<span class="kw">pData</span>(eset)$Sample), <span class="dt">col=</span><span class="kw">as.numeric</span>(<span class="kw">pData</span>(eset)$cell)) </code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p><strong>Figura 2. Boxplots. Box colored according to cellular line.</strong></p>
+<p>From above, is crear a normalization step is necesary. Concretely, the effect of three different normalization methods are showed in figure 3. These methods are TMM and CPM.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#TMM </span>
+
+<span class="kw">library</span>(edgeR)
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))
+nf&lt;-<span class="kw">calcNormFactors</span>(<span class="kw">exprs</span>(eset))
+esetTMM&lt;-eset
+<span class="kw">exprs</span>(esetTMM)&lt;-<span class="kw">t</span>(<span class="kw">t</span>(<span class="kw">exprs</span>(esetTMM))*nf)
+
+<span class="kw">boxplot</span>(<span class="kw">log</span>(<span class="kw">exprs</span>(eset)+<span class="dv">1</span>,<span class="dv">2</span>), <span class="dt">main=</span><span class="st">&quot;Boxplot log2&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;A&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Sample&quot;</span>,<span class="dt">names=</span><span class="kw">as.character</span>(<span class="kw">pData</span>(eset)$Sample), <span class="dt">col=</span><span class="kw">as.numeric</span>(<span class="kw">pData</span>(eset)$cell)) 
+
+<span class="kw">boxplot</span>(<span class="kw">log</span>(<span class="kw">exprs</span>(esetF)+<span class="fl">0.1</span>,<span class="dv">2</span>), <span class="dt">main=</span><span class="st">&quot;a) </span><span class="ch">\n</span><span class="st"> Boxplot CMM&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;A&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Sample&quot;</span>,<span class="dt">names=</span><span class="kw">as.character</span>(<span class="kw">pData</span>(eset)$Sample), <span class="dt">col=</span><span class="kw">as.numeric</span>(<span class="kw">pData</span>(eset)$cell)) 
+
+<span class="kw">boxplot</span>(<span class="kw">log</span>(<span class="kw">exprs</span>(esetTMM)+<span class="dv">1</span>,<span class="dv">2</span>), <span class="dt">main=</span><span class="st">&quot;c) </span><span class="ch">\n</span><span class="st"> Boxplot TMM&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;A&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Sample&quot;</span>,<span class="dt">names=</span><span class="kw">as.character</span>(<span class="kw">pData</span>(eset)$Sample), <span class="dt">col=</span><span class="kw">as.numeric</span>(<span class="kw">pData</span>(eset)$cell)) </code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAvVBMVEUAAAAAADoAAGYAAP8AOjoAOmYAOpAAZmYAZrYAzQA6AAA6ADo6AGY6OgA6Ojo6OmY6OpA6ZmY6ZpA6ZrY6kLY6kNtmAABmADpmAGZmOgBmOpBmZjpmkLZmkNtmtttmtv+QOgCQOjqQOmaQZgCQZjqQZmaQkDqQtraQ2/+2ZgC2Zjq2kDq2tma22/+2/9u2///bkDrbkGbbtmbbtpDbtrbb25Db27bb////AAD/tmb/25D/27b//7b//9v///+fRglyAAAACXBIWXMAAA7DAAAOwwHHb6hkAAALW0lEQVR4nO2dDX/bthHGT0rrqMq6Zt2sNlsbqV22Wdkyq+46R4qM7/+xCvBFBCUCh5c7EYzvSX5WQknPHf8EgSMJmqBEXsHYCZQuAYRIACESQIgEECIBhEgAIRJAiAQQIgGESAAhEkCIBBCiogHt5vej2xcN6LC8Hd2+aEBPm5vHse3LBHR4A/DlnVLb2R2b/5/D7IsEdFwtHo8rvXl3sObyf4DbIPsiASn1v398DboL3QNLJ7RvwITYFwno+Gb2w/9XfIB2UwdktnC1i5Xago4rgLqXdOhpc1lCDC57v0QzGNAeFnorazu2PujmcZ/TB+lOTKlPK3cd1YPx6w+Xyxo9wI8B+V7qvd487/QQwzqKPaaPYhUg39dtGIfl4mIZkYqtg5oWpL/+6R3A6w8awvz+uJrdHVdf/g1m6xpG/d7TBqAiYy0z1OBPb7KBHVeslXSQvacPmr3V/5h/+LSpOoPF36ueE94+bWZ3Bkb7nt2C2mX1Tp4NaM97LBZk725Bummsq27e/DDtZKHaoWVtYLTv2YDaZfVXTPwD6SqNIE8fpNey6ubrtV6aHqkde83Kt+/ZgNpl5rUCdEgaxUqSH9CpBZmdTq9vbAvSDe+aK8Mhzy62NZ1y0wdtTatYNH2QWXG7vxnugx7AAKOrs3TR8DXAN2bEADP6bAHW+p9k/luotOjb3/g6ab27NKOSqdxMn6RHsXeg97XeiPUe5h/U2Si2X8K3ehTbugAl1Fl6oHirzAih09YpmBzdgFL8m2G/bz+L2wWqXSxQnrooqc5qW6pe8MVyrX/+0azBF2T+HSDbfngLOBUKyNRNn9oVGrJJqLPaAyj94Zf6+7v5P80avCTz7wDZ9iumFvTLUgd3tvCkOmvXAVps5//d3PzbrMHgRkjy7wDZ9ttRRpmkOssGtJv9a2VqCSegBH8LkGW/Gw9QbJ1l7WKLqodAAMX6W4As+8O4gGLqLKuTXuiPV2uIAYrxtwBZ9scRd7HIOssa5hf68zeP2C4W698Bsu1HApRQZ+lCcdkUiuZ0WnW6y99Jx/p3gCz7sg4FYuqsK/kLIEQCCFFZgAqUAEIkgBAJIESjAjp+bw4jgbdjztTYgPa60ju8LpjQ2IB2t3VDKlbjAlrd/PajfvnrZ9aC4FKp4Q9LffD56uzUKKH/oKL8kwCRuAw6O9IlBhTjXxagAv0FEOI/KqD6vM3pqgK5v0PTAaSO3w1duvpMAMHFkgTth6rovj/k+A8qKv9kQGB/lWEFtH/9al54/M+WeD6cEoCmBfn861Wohn2uFgS9JZ4PJwSosoZmQ3C1oJqQoi4UG38rBvLhlAAdH4YtDJ2/OtsbSPzbnxV8f/55u1jLh/pQoHbsti4ToBqPP/80QFbr4WlBjXOzAhwttP7RtB9qQB2h5siJ42BStX/pN0ALvd4MiqEPOu1ajIBsQgz+oRs49XRH75wBD6Cuh2AApOx14AB0xfM19KNYTP45gFRIgBR/1W+gTIDsGL5kUgOcelCGOqUtodk2AHRjJMcoZnUOPLuA1UNwdNJdjYK30NRh3hpgWLbwWUdB639q91y72Hkb4h2GefztnYyrk4aQABn+QSuQ6N82I25AzusQObqw5xvm8fxJ6iC2FWDaAArOV8L34YQAl0pOtnh/AcQIiK2SvjagiR+LTbcFBW0BCv8JA7LOqdDpioDYh/m26kpOFvFnB8R00v7EngfQwOEwuX9o/jmnXK8AqN0Y9P7XAdQdWFKqOR/U+0Ptb5/LSgfkmKbbnU+xr13RyQakcgD584eg/DFAQ9N024RBcQHq3FWOvzP/5pUC0NA03VMAaytTqgPf/S9JFPn7AQ1P0z0PQN9HqB6edEAh+SPn1JHQw9N0leqB4elE7R0s2d+RP4TnHxfaqp+t7cwHKGALxzn38mcA1H6HCtC+yvf8d2zAwB9K9fPPGebRAAF1hE9Pm+p3BQyPktcAlF0Huabp2tsgb5SxXnr+NHWQP387llP+0K5pukR1UNuC/jA0DBPUQcg046D8kdCeaboUddBhOdwHEdVBFPmn9UH9APSjDFEd5Ipyes2vg5zfmUgd5PGfxDDv8+eog2z/KQBCR8nnXgd5R8kp1EFIgOxh3jnKENVBDhHWQe4A7XczATn8O/fMYd7jT1MHIQFy6yC3P1Ed5PRXapJ1UOcvdZDXX+qgAH+pg1B/qYM8/lIHIf5SB3n9O3epgxz+Ugch/lIHef2lDgrwlzoI9Zc6yOMvdRDiL3WQ179zlzrI4S91EOIvdZDXX+qgAH+pg1B/qYM8/lIHIf5SB3n9O/fC6yDXHML2tfQ6iCB/b2jnHMJ+gGLroKD8c0Yx5xzCExzrfgc6kdVBnjmQNMO8cw7haRXgK1ZAmXUQkn/QBvaHds0hvAYgimEeyR9M/qTDvDVTvbkhEA2QIL466Dz/r6IA7UKfrNwGgCZAIOYo/4Q6KNz/xCkg//at4wqCn8zd3U5aBWjmpfoV5X/6GV4HxeX/AiA0//qtHcz/M+DvmkN4FuAjCsjh78kprg6Kz/9FaP6gmueu74dWwDGHsBfgIwrI7e/OKaYOYs2/bUE3D4MrMDyHMBKQx384J7BuGA7ahRnzb9/SA+I6LP0UQOn+wOwfDEhrGz4KxAMa9HfdlUzl71AqoGAlrsClXHclU/k7NClA/buS2y5HANVy3ZX8OQEK7UQdcjz86HqA0PxHBoT68wICbkABAbL8JwvIPtiYIqCI/J83oMBjsZQAYAWACQIKzj+1D5o2oOjTHYwBEv2vB+gjD6Dr7AKA9xFJ/lOppJ3+FyL2F0CI/+QB9St1AVSyvwASQHn+AkgA5fkLIAGU5y+ABFCevwASQHn+z/uqBvtlH5g4oID8M0/aq2kCisg/CZD++6KahFdHmxygmPxTAUEbQDWTjQl1DUDB+ScCaoxzXDz+/IDqMCH5e0Ojj11guleDChBF/hgg12MjpgIoO38M0OAEJ3ZAEZeGfaLI3w/I9dgFqnspXDmdipRMQAT5I6HRxy4wAepByhgl8/PPGMUyXSbiL4AQfwGE+KcBukofVIa/ABJAef4CqGhA4z78iBEQhYtCb/zP9ndoOsP8xY3/rrr5uQLyPvyIwN+hCdVB/hv/J9wHFbQC3P4CSADl+QsgFkAULhPxF0CIvwBC/KUPkk46z18ACaA8fwHEAojCZSL+AgjxF0CIv/RB0knn+QsgAZTnL4BYAFG4TMRfACH+Agjxlz5IOuk8f3/oCcy+8Iogf29o5+yLiQCiyN8b2jn7As6VtgLOnIj8KfIPakElz77wiSJ/f2jX7Is4l1jR+RPkL3UQ4i+AEH8BhPgnAbpUgstE/NNCc1ZBhfkLIAGU5y+ABFCevwBiAfSMJIAQCSBEAgiRAEIkgBAJIEQCCJEAQpQEaBv+QMckleSfAujw7c+BTxNMU1H+KYC2613wEylTVJR/AqDj9/fn1ypJVZZ/AiDza8G2jJu4LP94QPUDlIeegEujwvzjAZlfvKeefhp6iDKJCvOPBvRUjwBVGA6V5i+FIiIBhEgAIRJAiAQQIgGESAAhEkCIBBAiAYRIACESQIgEECIBhEgAIRJAiAQQohhA5va04ZPdNFchivSPAGTuKrp4RgUaYOr+MYAalx3AQh2+eQN/2cCteV2Yt/ZmaZbK9I/ZxbYwv6/imEtvr8wTTw6vf3t197RZ61cdPfdiVpH+cZ30caVDHJYw09aP1V9jvLs9vH4wF5uy5xwU6B87iu1u9/P743eXAYgu0xTnHwFIO5u7QPcLtbe2QNtEq9es3Mv0j2lBu6oVHlfwcrU+BaDrRMv0zy0UWedhlOAvgJgBffYSQIgEECIBhEgAIRJAiAQQIgGESAAhEkCIBBAiAYRIACESQIh+B09CroOKS76SAAAAAElFTkSuQmCC" style="display: block; margin: auto;" /></p>
+<p><strong>Figura 8. Boxplots Normalization methods a) Non-normalized b) CMM c) TMM</strong></p>
+<p>As espected, each of the normalization methods provide different outcomes, sice each of them make different assumptions. Each differential expression analysis implement a different normalization method as default. For instance, edger implment TMM as default normalization method. We recommended employing TMM for dEMO test method.</p>
+</div>
+<div id="differential-expression-analysis." class="section level1">
+<h1>5. Differential Expression Analysis.</h1>
+<p>The next step is carrying out the Differential Expression Analysis. At first, data set is normalized by TMM method.Secondly, dEMO test method is employted.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dEMO)
+<span class="kw">library</span>(edgeR)
+
+expr&lt;-<span class="kw">exprs</span>(eset)
+conditions&lt;-(<span class="kw">pData</span>(eset)[,<span class="st">&quot;GROUP&quot;</span>])
+TMMfac&lt;-<span class="kw">calcNormFactors.default</span>(expr,<span class="dt">method =</span> <span class="st">&quot;TMM&quot;</span>)
+exprT&lt;-<span class="kw">t</span>(<span class="kw">t</span>(expr)*TMMfac)
+exprorig&lt;-<span class="kw">t</span>(<span class="kw">t</span>(<span class="kw">assay</span>(airway))*TMMfac)
+
+testdEMOTMM&lt;-<span class="kw">dEMObuODlmTest</span>(<span class="dt">expr=</span>exprT, <span class="dt">condition =</span> conditions,<span class="dt">original =</span> exprorig)
+
+<span class="kw">round</span>(<span class="kw">prop.table</span>(<span class="kw">table</span>(testdEMOTMM$ADJ.PVAL&lt;<span class="fl">0.05</span>))*<span class="dv">100</span>,<span class="dv">2</span>)</code></pre></div>
+<pre><code>## 
+## FALSE  TRUE 
+## 92.68  7.32</code></pre>
+<p>In order to compare data obtained by dEMO test method, <a href="https://bioconductor.org/packages/release/bioc/html/edgeR.html">edgeR</a> is selected:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#TMM</span>
+edgeR.dgelist &lt;-<span class="st"> </span><span class="kw">DGEList</span>(<span class="dt">counts =</span> expr, <span class="dt">group =</span> <span class="kw">factor</span>(conditions))
+edgeR.dgelist &lt;-<span class="st"> </span><span class="kw">calcNormFactors</span>(edgeR.dgelist, <span class="dt">method =</span> <span class="st">&quot;TMM&quot;</span>)
+edgeR.dgelist &lt;-<span class="st"> </span><span class="kw">estimateCommonDisp</span>(edgeR.dgelist)
+edgeR.dgelist &lt;-<span class="st"> </span><span class="kw">estimateTagwiseDisp</span>(edgeR.dgelist, <span class="dt">trend =</span> <span class="st">&quot;movingave&quot;</span>)
+edgeR.test &lt;-<span class="st"> </span><span class="kw">exactTest</span>(edgeR.dgelist)
+edgeR.pvalues &lt;-<span class="st"> </span>edgeR.test$table$PValue
+edgeR.adjpvalues &lt;-<span class="st"> </span><span class="kw">p.adjust</span>(edgeR.pvalues, <span class="dt">method =</span> <span class="st">&quot;BH&quot;</span>)
+testedgeRTMM &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">FC=</span>edgeR.test$table$logFC, <span class="dt">PVALUE=</span>edgeR.test$table$PValue, <span class="dt">ADJ.PVAL=</span>edgeR.adjpvalues)
+
+<span class="kw">round</span>(<span class="kw">prop.table</span>(<span class="kw">table</span>(testedgeRTMM$ADJ.PVAL&lt;<span class="fl">0.05</span>))*<span class="dv">100</span>,<span class="dv">2</span>)</code></pre></div>
+<pre><code>## 
+## FALSE  TRUE 
+## 90.21  9.79</code></pre>
+<p>A Venn diagramam provides a vision of how many DEGs are shared by both methods:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#venn</span>
+<span class="kw">library</span>(gplots)
+input &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">edgeR =</span> <span class="kw">rownames</span>(expr)[testedgeRTMM$ADJ.PVAL&lt;=<span class="fl">0.05</span>],  <span class="dt">dEMO=</span><span class="kw">rownames</span>(exprT)[testdEMOTMM$ADJ.PVAL&lt;=<span class="fl">0.05</span>])
+
+<span class="kw">venn</span>(input)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>In order to avoid founding a large number of false positives, we suggest call as DEGs those genes belonging to the intersection of DEGs found by both dEMO test and edger methods.</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

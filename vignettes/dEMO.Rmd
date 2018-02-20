@@ -1,0 +1,165 @@
+---
+title: "dEMO. An easy work flow"
+author: "Enrique Perez-Riesgo"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dEMO. An easy work flow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+#1. Introduction
+dEMO method allows both estimating the confidencial interval of fold change and testing the differential expression from RNA-seq data sets.
+Here, a comprensive differential expression analysis work flow is proposed. Thus, this vignette is split into different points acording to several important concepts in terms of RNA-seq data analysis. Data sets employed belong to [Airway](http://www.ncbi.nlm.nih.gov/pubmed/24926665) R pakage. 
+
+#2. Loading Data set.
+
+At first, data sets have to be loaded as follows. 
+
+```{r data sets read, message=FALSE}
+library(airway)
+data("airway")
+```
+
+Secondly, an ExpressionSet object is build with data sets above loaded:
+
+```{r ExpressionSet, message=FALSE}
+#Expression data set
+expression<-assay(airway)
+#phenotype datas
+design<-colData(airway)
+design<-design[,c("SampleName", "cell", "dex")]
+design$GROUP<-ifelse(design$dex == "trt", 1, 0)
+
+design$Sample<-c("A","B", "C", "D", "E", "F", "G", "H")
+design$ID<-rownames(design)
+rownames(design)<-design$Sample
+
+phenodatas<-design
+
+#change names of samples
+colnames(expression)<-rownames(phenodatas)
+
+#ExpressionSet
+eset<-new("ExpressionSet", exprs=expression,annotation="hsa")
+pData(eset)<-data.frame(phenodatas)
+
+```
+
+#3. Filtration.
+RNA-seq data sets contain a large amount of values equal to zero, since not all genes are expressed by every kind of cell, and that is very important relative to filtering. 
+
+```{r Expression Zero, message=FALSE}
+tabla0<-prop.table(table(rowSums(exprs(eset))==0))
+tabla0
+```
+
+For instance, the expression of the `r round(tabla0[2]*100,2)`% of genes are qual to zero, so they are not expressed. Thus, those genes which are not expressed, that may not play any role or show no relationship to phenotype may be removed from the data expression set. Nevertheless, we need to be careful in this step to avoid removing genes which marginally do not show any kind of activity in a cell but may act jointly with other genes.
+
+An option is that known as K over A, where those genes whose expression profile is greater than A for, at least, k sampler percondition. A value could be the first quantile of expression data after remove those genes whose expression profile is zero. Regarding sample size K, it is that sample size corresponding to smaller group (condition). Notably, this filtered does not take into account the origin of each sample in terms of what condition they belong to. Before above, raw data are corrected against differences between samples in terms of deep sequencing, expressed as *Counts per Million (CPM)*. Figure 1 shows the histogram of non-filtered data (figure 1a) and filtered data (figure 1b). 
+
+```{r filtered, message=FALSE, fig.align='center', cache=TRUE}
+#At first, differences between library sizes are corrected, and then those genes whise expression profile is zero are removed. Two ExpressionSets are filtered, where the first one stores the raw data (eset) and the second one stores the corrected data (esetF) 
+esetF <- eset
+exprs(esetF) <- (t(t(exprs(esetF)) / (apply(exprs(esetF), 2, sum)))) * 10 ^ 6
+esetF <- esetF[rowSums(exprs(eset)) > 0]
+eset <- eset[rowSums(exprs(eset)) > 0]
+#Quantiles are alculated and the minimum exression value A is fixed. In this case, the first quantile is selected as A value. 
+A <- quantile(exprs(esetF), 0.5)
+datos_condicion <- exprs(esetF) > A
+#Filtred. The minimum number of K samples which have to show an expression greater or equal to A. K is the number of individuals of the smaller group tested.  
+K=4
+esetF<-esetF[apply(datos_condicion,1,sum)>=K]
+eset<-eset[apply(datos_condicion,1,sum)>=K]
+#histogram
+par(mfrow=c(1,2))
+x<-hist(assay(airway), breaks="Scott", main="a) Histogram \n Raw Datas", xlab = "counts")
+hist(exprs(esetF), breaks="Scott", main="b) Histogram rlog \n dFiltered Datas",xlab = "counts)", ylim=c(0,max(x$mids)[1]))
+
+```
+**Figure 1. Histograms a) Raw data non-filtered b) Filtered datas.**
+
+After filtered, the number of genes from expression matrix have been reducted from  `r dim(assay(airway))[1]` to `r dim(exprs(esetF))[1]`.
+
+#4. Data Normalization.
+
+As is observed below, data from each sample show differences between them in terms of data distributions. In order to show data with an adequate scale, data are log2 transformated.
+
+
+```{r boxplot, message=FALSE, cache=TRUE, fig.align='center'}
+
+boxplot(log(exprs(eset)+1,2), main="Boxplot log2", ylab="A", xlab="Sample",names=as.character(pData(eset)$Sample), col=as.numeric(pData(eset)$cell)) 
+
+```
+
+**Figura 2. Boxplots. Box colored according to cellular line.**
+
+From above, is crear a normalization step is necesary. Concretely, the effect of three different normalization methods are showed in figure 3. These methods are TMM and CPM.
+
+
+```{r Boxplot Norm, cache=TRUE, message=FALSE, fig.align='center'}
+#TMM 
+
+library(edgeR)
+par(mfrow=c(1,3))
+nf<-calcNormFactors(exprs(eset))
+esetTMM<-eset
+exprs(esetTMM)<-t(t(exprs(esetTMM))*nf)
+
+boxplot(log(exprs(eset)+1,2), main="Boxplot log2", ylab="A", xlab="Sample",names=as.character(pData(eset)$Sample), col=as.numeric(pData(eset)$cell)) 
+
+boxplot(log(exprs(esetF)+0.1,2), main="a) \n Boxplot CMM", ylab="A", xlab="Sample",names=as.character(pData(eset)$Sample), col=as.numeric(pData(eset)$cell)) 
+
+boxplot(log(exprs(esetTMM)+1,2), main="c) \n Boxplot TMM", ylab="A", xlab="Sample",names=as.character(pData(eset)$Sample), col=as.numeric(pData(eset)$cell)) 
+```
+
+**Figura 8. Boxplots Normalization methods a) Non-normalized b) CMM c) TMM**
+
+As espected, each of the normalization methods provide different outcomes, sice each of them make different assumptions. Each differential expression analysis implement a different normalization method as default. For instance, edger implment TMM as default normalization method. We recommended employing TMM for dEMO test method.
+
+#5. Differential Expression Analysis.
+
+The next step is carrying out the Differential Expression Analysis. At first, data set is normalized by TMM method.Secondly, dEMO test method is employted.
+
+```{r dEMO, message=FALSE}
+library(dEMO)
+library(edgeR)
+
+expr<-exprs(eset)
+conditions<-(pData(eset)[,"GROUP"])
+TMMfac<-calcNormFactors.default(expr,method = "TMM")
+exprT<-t(t(expr)*TMMfac)
+exprorig<-t(t(assay(airway))*TMMfac)
+
+testdEMOTMM<-dEMObuODlmTest(expr=exprT, condition = conditions,original = exprorig)
+
+round(prop.table(table(testdEMOTMM$ADJ.PVAL<0.05))*100,2)
+```
+
+In order to compare data obtained by dEMO test method, [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is selected:
+
+```{r edgeR, message=FALSE}
+#TMM
+edgeR.dgelist <- DGEList(counts = expr, group = factor(conditions))
+edgeR.dgelist <- calcNormFactors(edgeR.dgelist, method = "TMM")
+edgeR.dgelist <- estimateCommonDisp(edgeR.dgelist)
+edgeR.dgelist <- estimateTagwiseDisp(edgeR.dgelist, trend = "movingave")
+edgeR.test <- exactTest(edgeR.dgelist)
+edgeR.pvalues <- edgeR.test$table$PValue
+edgeR.adjpvalues <- p.adjust(edgeR.pvalues, method = "BH")
+testedgeRTMM <- data.frame(FC=edgeR.test$table$logFC, PVALUE=edgeR.test$table$PValue, ADJ.PVAL=edgeR.adjpvalues)
+
+round(prop.table(table(testedgeRTMM$ADJ.PVAL<0.05))*100,2)
+```
+
+A Venn diagramam provides a vision of how many DEGs are shared by both methods:
+
+```{r Venn, message=FALSE}
+#venn
+library(gplots)
+input <- list(edgeR = rownames(expr)[testedgeRTMM$ADJ.PVAL<=0.05],  dEMO=rownames(exprT)[testdEMOTMM$ADJ.PVAL<=0.05])
+
+venn(input)
+```
+
+In order to avoid founding a large number of false positives, we suggest call as DEGs those genes belonging to the intersection of DEGs found by both dEMO test and edger methods. 

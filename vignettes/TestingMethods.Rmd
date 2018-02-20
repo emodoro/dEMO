@@ -1,0 +1,189 @@
+---
+title: "Testing performance for different differential expression analysis methods"
+author: "Enrique Perez-Riesgo"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Testing performance for different differential expression analysis methods}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+#1. Introduction
+
+dEMO package not only provides functions for differential expression analysis or confidence intervals estimation, but also for testing the performance of differential expression methods. This funtions allows computing ROCs curves, Area Under ROCs curves, FDR curves and the capability of controlling Type I error. 
+
+#2. Simulated RNA-seq data sets 
+Simulated RNA-seq data sets have been obtained from compcodeR{#compcodeR} R packages, which allows simulating them. Nevertheless, simulated data analyzed in dEMO paper are stored in dEMO package.
+
+
+```{r}
+library(edgeR)
+library(compcodeR)
+library(DESeq2)
+
+samples<-6
+OD<-"OverDisperssion6"
+fractionNonOD<-0
+ODdif<-FALSE
+DEperc<-0.3
+genesnum<-15000
+upreg<-0.5
+librarysiz<-1e6
+
+name_results<-paste(fractionNonOD,OD,ODdif,"_",as.character(samples),"_",as.character(DEperc),"_", as.character(upreg),"_",as.character(librarysiz), sep="")
+main<-name_results
+
+set.seed(123456987)
+expr3<-generateSyntheticData(dataset = name_results, n.vars = genesnum,samples.per.cond = samples, n.diffexp = DEperc*genesnum,repl.id = 1, seqdepth = librarysiz,fraction.upregulated = upreg,between.group.diffdisp = ODdif,filter.threshold.total = 1,filter.threshold.mediancpm = 0,fraction.non.overdispersed = fractionNonOD)
+
+#Extract information of interest from simulated RNA-seq data sets
+expr<-expr3@count.matrix
+conditions<-(expr3@sample.annotations$condition-1)
+
+```
+
+Secondly, several differential expression analysis are carried out in order to testing the performance different methods between them:
+
+#3. Differential Expression Analysis
+
+The performance from several differential expression analysis methods can be tested through several graphical representations. Thus, the first point is estimating differential expression through different methods, such as dEMO test edgeR {#edgeR}, DESeq {#DESeq} and NBPseq {#NBPseq}.
+
+##3.1. dEMO
+
+At first, as it is suggested in dEMO paper, RNA-seq data sets have to be normalized with TMM method. Then, dEMO test is carried out:
+
+```{r dEMO test, message=FALSE, warning=FALSE}
+#TMM normalization
+TMMfac<-calcNormFactors.default(expr,method = "TMM")
+exprT<-t(t(expr)*TMMfac)
+
+#dEMO test
+library(dEMO)
+testdEMOTMM<-dEMObuODlmTest(expr=exprT, condition = conditions,original = exprT)
+```
+
+
+##3.2. edgeR
+
+```{r edgeR, message = FALSE, warning = FALSE}
+library(edgeR)
+edgeR.dgelist = DGEList(counts = expr, group = factor(conditions))
+edgeR.dgelist = calcNormFactors(edgeR.dgelist, method = "TMM")
+edgeR.dgelist = estimateCommonDisp(edgeR.dgelist)
+edgeR.dgelist = estimateTagwiseDisp(edgeR.dgelist, trend = "movingave")
+edgeR.test = exactTest(edgeR.dgelist)
+edgeR.pvalues = edgeR.test$table$PValue
+edgeR.adjpvalues = p.adjust(edgeR.pvalues, method = "BH")
+testedgeRTMM<-data.frame(FC=edgeR.test$table$logFC, PVALUE=edgeR.test$table$PValue, ADJ.PVAL=edgeR.adjpvalues)
+
+```
+
+##3.3. DESeq
+```{r DESeq, message = FALSE, warning = FALSE}
+library(DESeq)
+DESeq.cds = newCountDataSet(countData = expr,conditions = factor(conditions))
+DESeq.cds = estimateSizeFactors(DESeq.cds)
+DESeq.cds = estimateDispersions(DESeq.cds, sharingMode = "maximum",method = "pooled", fitType = "local")
+DESeq.test = nbinomTest(DESeq.cds, "0", "1")
+DESeq.pvalues = DESeq.test$pval
+DESeq.adjpvalues = p.adjust(DESeq.pvalues, method = "BH")
+testDESeq<-data.frame(FC=DESeq.test$log2FoldChange, PVALUE=DESeq.test$pval, ADJ.PVAL=DESeq.adjpvalues)
+
+```
+
+##3.4. NBPseq
+```{r NBPseq, message = FALSE, warning = FALSE}
+library(edgeR)
+library(NBPSeq)
+NBPSeq.dgelist = DGEList(counts = expr, group = factor(conditions))
+NBPSeq.dgelist = calcNormFactors(NBPSeq.dgelist, method = "TMM")
+NBPSeq.norm.factors = as.vector(NBPSeq.dgelist$samples$norm.factors)
+NBPSeq.test = nbp.test(counts = expr, grp.ids = conditions,grp1 = 0, grp2 = 1, norm.factors = NBPSeq.norm.factors)
+NBPSeq.pvalues = NBPSeq.test$p.values
+NBPSeq.adjpvalues = NBPSeq.test$q.values
+testNBPseq<-data.frame(FC=NBPSeq.test$log.fc, PVALUE=NBPSeq.test$p.values, ADJ.PVAL=NBPSeq.test$q.values)
+```
+
+
+#4. Testing Differential Expression Analysis Methods
+
+In order to evaluate the performance of different DE methods and compare between them, it is possible to face this issue from two different points of view. One of them is based on the capability of a method to detect true DEGs ahead false DEGs, and the other one is based on the capability to control type I error. 
+At first, p values from different DE methods carried out above are stored into dataRoc object:
+
+```{r pvalues stored, message = FALSE, warning = FALSE}
+dataRoc<-data.frame(EMO=testdEMOTMM$ADJ.PVAL,NBPseq=testNBPseq$ADJ.PVAL,edgeR=testedgeRTMM$ADJ.PVAL, DESeq=testDESeq$ADJ.PVAL, DE=expr3@variable.annotations$differential.expression)
+
+dataRocp<-data.frame(EMO=testdEMOTMM$PVALUE,NBPseq=testNBPseq$PVALUE,edgeR=testedgeRTMM$PVALUE, DESeq=testDESeq$PVALUE, DE=expr3@variable.annotations$differential.expression)
+dataRocp<-dataRocp[expr3@variable.annotations$differential.expression==0,]
+```
+
+The followings analysis were carried out in order to evaluate differential expression methods in terms of their performances:
+
+##4.1. ROCs
+The first point is studied the capability to detect the larger number of true DEGs (True positives) ahead of the less number of false DEGs (false positives) at the same time significance level varies. To do this above, we employed the Receiver Operating Characteristic (ROC) curves and the area under the curve (AUC), both pvalues=[0,1] and pvalues=[0,0.05], where true positive rates (TPRs) are plotted against false positives rates (FPRs). Regarding how interpreter the outcomes from ROCs curves, on one hand, the closer to top left corner passes the curve the better performances are obtained and, on the other hand, the larger AUC value the better performance are obtained too.
+
+The below functions compute the outcomes through resampling RNA-seq data sets, where the number ob resamples are stablish with the argument *resample*.
+
+```{r ROCs, message = FALSE, warning = FALSE}
+ROCcurve(dataRoc = dataRoc, main="ROCs")
+
+ROCAreas(dataRoc = dataRoc, main="ROCs Areas",resample = 10,DE = DEperc)
+areasdata<-ROCAreasData(dataRoc = dataRoc, resample = 10,DE = DEperc)
+
+ROCAreas005(dataRoc = dataRoc, main="ROCs Areas 0.05",resample = 10,DE = DEperc)
+```
+
+
+##4.2. FDR curves.
+The previous criteria for performance evaluation based on ROCs and AUCs are enough efficient. Nevertheless, neither ROCs nor AUCs reveal if are either False Negatives or False Positives the guilty for a non-perfect discrimination between non-DEGs and DEGs. Thus, the next step was evaluating the number of False Discoveries (FDs) as the total number of discoveries increases, for which we employed the False Discovery Curves (FDCs) where the number of false discoveries is plotted against the total number of discoveries. Here, the more downer right the curve is plotted, the higher is the performance, since that means the lower is the number of FDs committed for a let number of total discoveries. Since the mainly concern when researchers analyze differential expression is usually identified those genes which show the higher evidence of differential expression, we have represented the FDCs in the range of total number discoveries form 0 to 1000.
+
+```{r FDR curves, message= FALSE, warning= FALSE}
+FDRcurve(dataRoc = dataRoc, main="")
+```
+
+
+##4.3. Type I Error.
+To face the question about how well the performance is in terms of controlling the type I error at given significance level or threshold, we evaluate the observed rates of genes that are identified as differentially expressed when they are truly not differentially expressed. Thus, we removed all those genes which are truly DEGs in order to get several simulated data sets where there are not any DEGs. So, we evaluate the false positives rate, that is, The number of genes are falsely identified as DEG divided by the total number of genes which are truly non-expressed. The aim is evaluating the ability of the methods to control Type I error and when a significance level $\alpha$ has been pre-establish by analyst. Good outcomes have been obtained if false positive rate is near to $\alpha$, since probability calculus sais we expect identify as DEGs  a $\alpha$·100% of genes which are truly non-expressed. Here, the significance level $\alpha$, or the nominal p-value cut-off, is 0.05, so good performances in terms of controlling type I error are those whose false positive rate is close to significance level.
+
+```{r Type I Error, message= FALSE, warning= FALSE}
+TIerror(dataRoc = dataRoc, main=main)
+```
+
+
+##4.4. DEGs overlaped between different DE analysis methods.
+
+Since each method make different assumptions, each of them found different DEGs. Hence, it is very interesting know how many DEGs fouund are shared by different methods.
+
+```{r Venn, message=FALSE, warning=FALSE}
+#venn
+library(gplots)
+input<-list(DEGs=rownames(expr3@count.matrix)[expr3@variable.annotations$differential.expression==1], edgeR=rownames(expr3@count.matrix)[testedgeRTMM$ADJ.PVAL<=0.05],  NBPseq=rownames(expr3@count.matrix)[testNBPseq$ADJ.PVAL<=0.05], DESeq=rownames(expr3@count.matrix)[testDESeq$ADJ.PVAL<=0.05],dEMO=rownames(expr3@count.matrix)[testdEMOTMM$ADJ.PVAL<=0.05])
+
+venn(input)
+
+#matriz of intersections of DEGs between each pair of methods
+edgeRDE<-data.frame(edgeR=length(rownames(expr3@count.matrix)[testedgeRTMM$ADJ.PVAL<=0.05]),dEMO=length(rownames(expr3@count.matrix)[testedgeRTMM$ADJ.PVAL<=0.05&testdEMOTMM$ADJ.PVAL<=0.05]), DESeq=length(rownames(expr3@count.matrix)[testedgeRTMM$ADJ.PVAL<=0.05&testDESeq$ADJ.PVAL<=0.05]), NBPseq=length(rownames(expr3@count.matrix)[testedgeRTMM$ADJ.PVAL<=0.05&testNBPseq$ADJ.PVAL<=0.05]), trueDEGs=length(rownames(expr3@count.matrix)[testedgeRTMM$ADJ.PVAL<=0.05&expr3@variable.annotations$differential.expression==1]))
+
+dEMODE<-data.frame(edgeR=length(rownames(expr3@count.matrix)[testedgeRTMM$ADJ.PVAL<=0.05&testdEMOTMM$ADJ.PVAL<=0.05]),dEMO=length(rownames(expr3@count.matrix)[testdEMOTMM$ADJ.PVAL<=0.05]), DESeq=length(rownames(expr3@count.matrix)[testdEMOTMM$ADJ.PVAL<=0.05&testDESeq$ADJ.PVAL<=0.05]), NBPseq=length(rownames(expr3@count.matrix)[testdEMOTMM$ADJ.PVAL<=0.05&testNBPseq$ADJ.PVAL<=0.05]),trueDEGs=length(rownames(expr3@count.matrix)[testdEMOTMM$ADJ.PVAL<=0.05&expr3@variable.annotations$differential.expression==1]))
+
+DESeqDE<-data.frame(edgeR=length(rownames(expr3@count.matrix)[testedgeRTMM$ADJ.PVAL<=0.05&testDESeq$ADJ.PVAL<=0.05]),dEMO=length(rownames(expr3@count.matrix)[testDESeq$ADJ.PVAL<=0.05&testdEMOTMM$ADJ.PVAL<=0.05]), DESeq=length(rownames(expr3@count.matrix)[testDESeq$ADJ.PVAL<=0.05]), NBPseq=length(rownames(expr3@count.matrix)[testDESeq$ADJ.PVAL<=0.05&testNBPseq$ADJ.PVAL<=0.05]),trueDEGs=length(rownames(expr3@count.matrix)[testDESeq$ADJ.PVAL<=0.05&expr3@variable.annotations$differential.expression==1]))
+
+NBPseqDE<-data.frame(edgeR=length(rownames(expr3@count.matrix)[testedgeRTMM$ADJ.PVAL<=0.05&testNBPseq$ADJ.PVAL<=0.05]),dEMO=length(rownames(expr3@count.matrix)[testNBPseq$ADJ.PVAL<=0.05&testdEMOTMM$ADJ.PVAL<=0.05]), DESeq=length(rownames(expr3@count.matrix)[testNBPseq$ADJ.PVAL<=0.05&testDESeq$ADJ.PVAL<=0.05]), NBPseq=length(rownames(expr3@count.matrix)[testNBPseq$ADJ.PVAL<=0.05]),trueDEGs=length(rownames(expr3@count.matrix)[testNBPseq$ADJ.PVAL<=0.05&expr3@variable.annotations$differential.expression==1]))
+trueDEGs<-data.frame(edgeR=length(rownames(expr3@count.matrix)[testedgeRTMM$ADJ.PVAL<=0.05&expr3@variable.annotations$differential.expression==1]),dEMO=length(rownames(expr3@count.matrix)[expr3@variable.annotations$differential.expression==1&testdEMOTMM$ADJ.PVAL<=0.05]), DESeq=length(rownames(expr3@count.matrix)[expr3@variable.annotations$differential.expression==1&testDESeq$ADJ.PVAL<=0.05]), NBPseq=length(rownames(expr3@count.matrix)[expr3@variable.annotations$differential.expression==1&testNBPseq$ADJ.PVAL<=0.05]),trueDEGs=length(rownames(expr3@count.matrix)[expr3@variable.annotations$differential.expression==1]))
+
+comparaciones<-rbind(edgeRDE, dEMODE, DESeqDE, NBPseqDE, trueDEGs)
+rownames(comparaciones)<-c("edgeR", "dEMO", "DESeq", "NBPseq", "trueDEGs")
+knitr::kable(comparaciones)
+```
+
+ 
+#Bibligraphy
+
+#####Soneson C (2014). "compcodeR - an R package for benchmarking differential expression methods for RNA-seq data." Bioinformatics, 30(17), pp. 2517-2518. {#compcodeR}
+
+#####Robinson MD, McCarthy DJ and Smyth GK (2010). "edgeR: a Bioconductor package for differential expression analysis of digital gene expression data." Bioinformatics, 26(1), pp. 139-140.  {#edgeR}
+
+#####Anders S and Huber W (2010). "Differential expression analysis for sequence count data." Genome Biology, 11, pp. R106. {#DESeq} 
+
+#####[Yanming Di and Daniel W Schafer and with contributions from Jason S Cumbie and Jeff H Chang. "NBPSeq: Negative Binomial Models for RNA-Sequencing Data". 2014.](https://CRAN.R-project.org/package=NBPSeq)

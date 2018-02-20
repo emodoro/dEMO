@@ -1,0 +1,27 @@
+Package: dEMO
+Type: Package
+Title: Differential Expression and confidencial estimation for FC 
+Description: dEMO method: This method allows testing Differential Expression
+    Analysis, estimating Fold Change both its point estimation and its 
+    Confidence Estimation. It is based on both counts data fit well 
+    negative binomial distribution, and a normal approximation  This package
+    also stores several functions which allows evaluating the performance 
+    from different differential expression analysis methods between them.
+Version: 1.0.0
+Autors@R: person("Enrique", "Perez-Riesgo", email = "epercamh@gmail.com", 
+    role = c("aut", "cre"))
+Imports:
+    Biobase (>= 2.36.2),
+    edgeR (>= 3.18.1)
+Depends:
+    R (>= 3.4.2)
+Suggests:
+    compcodeR (>= 1.12.0),
+    gplots (>= 3.0.1),
+    knitr,
+    rmarkdown
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+VignetteBuilder: knitr

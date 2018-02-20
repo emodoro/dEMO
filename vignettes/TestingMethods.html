@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Enrique Perez-Riesgo" />
+
+<meta name="date" content="2018-02-20" />
+
+<title>Testing performance for different differential expression analysis methods</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Testing performance for different differential expression analysis methods</h1>
+<h4 class="author"><em>Enrique Perez-Riesgo</em></h4>
+<h4 class="date"><em>2018-02-20</em></h4>
+
+
+
+<div id="introduction" class="section level1">
+<h1>1. Introduction</h1>
+<p>dEMO package not only provides functions for differential expression analysis or confidence intervals estimation, but also for testing the performance of differential expression methods. This funtions allows computing ROCs curves, Area Under ROCs curves, FDR curves and the capability of controlling Type I error.</p>
+</div>
+<div id="simulated-rna-seq-data-sets" class="section level1">
+<h1>2. Simulated RNA-seq data sets</h1>
+<p>Simulated RNA-seq data sets have been obtained from compcodeR{#compcodeR} R packages, which allows simulating them. Nevertheless, simulated data analyzed in dEMO paper are stored in dEMO package.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(edgeR)</code></pre></div>
+<pre><code>## Loading required package: limma</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(compcodeR)</code></pre></div>
+<pre><code>## Loading required package: sm</code></pre>
+<pre><code>## Package 'sm', version 2.2-5.4: type help(sm) for summary information</code></pre>
+<pre><code>## 
+## This is package 'modeest' written by P. PONCET.
+## For a complete list of functions, use 'library(help = &quot;modeest&quot;)' or 'help.start()'.</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(DESeq2)</code></pre></div>
+<pre><code>## Loading required package: S4Vectors</code></pre>
+<pre><code>## Loading required package: stats4</code></pre>
+<pre><code>## Loading required package: BiocGenerics</code></pre>
+<pre><code>## Loading required package: parallel</code></pre>
+<pre><code>## 
+## Attaching package: 'BiocGenerics'</code></pre>
+<pre><code>## The following objects are masked from 'package:parallel':
+## 
+##     clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+##     clusterExport, clusterMap, parApply, parCapply, parLapply,
+##     parLapplyLB, parRapply, parSapply, parSapplyLB</code></pre>
+<pre><code>## The following object is masked from 'package:limma':
+## 
+##     plotMA</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     IQR, mad, sd, var, xtabs</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     Filter, Find, Map, Position, Reduce, anyDuplicated, append,
+##     as.data.frame, cbind, colMeans, colSums, colnames, do.call,
+##     duplicated, eval, evalq, get, grep, grepl, intersect,
+##     is.unsorted, lapply, lengths, mapply, match, mget, order,
+##     paste, pmax, pmax.int, pmin, pmin.int, rank, rbind, rowMeans,
+##     rowSums, rownames, sapply, setdiff, sort, table, tapply,
+##     union, unique, unsplit, which, which.max, which.min</code></pre>
+<pre><code>## 
+## Attaching package: 'S4Vectors'</code></pre>
+<pre><code>## The following object is masked from 'package:base':
+## 
+##     expand.grid</code></pre>
+<pre><code>## Loading required package: IRanges</code></pre>
+<pre><code>## Loading required package: GenomicRanges</code></pre>
+<pre><code>## Loading required package: GenomeInfoDb</code></pre>
+<pre><code>## Loading required package: SummarizedExperiment</code></pre>
+<pre><code>## Loading required package: Biobase</code></pre>
+<pre><code>## Welcome to Bioconductor
+## 
+##     Vignettes contain introductory material; view with
+##     'browseVignettes()'. To cite Bioconductor, see
+##     'citation(&quot;Biobase&quot;)', and for packages 'citation(&quot;pkgname&quot;)'.</code></pre>
+<pre><code>## Loading required package: DelayedArray</code></pre>
+<pre><code>## Loading required package: matrixStats</code></pre>
+<pre><code>## 
+## Attaching package: 'matrixStats'</code></pre>
+<pre><code>## The following objects are masked from 'package:Biobase':
+## 
+##     anyMissing, rowMedians</code></pre>
+<pre><code>## 
+## Attaching package: 'DelayedArray'</code></pre>
+<pre><code>## The following objects are masked from 'package:matrixStats':
+## 
+##     colMaxs, colMins, colRanges, rowMaxs, rowMins, rowRanges</code></pre>
+<pre><code>## The following object is masked from 'package:base':
+## 
+##     apply</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">samples&lt;-<span class="dv">6</span>
+OD&lt;-<span class="st">&quot;OverDisperssion6&quot;</span>
+fractionNonOD&lt;-<span class="dv">0</span>
+ODdif&lt;-<span class="ot">FALSE</span>
+DEperc&lt;-<span class="fl">0.3</span>
+genesnum&lt;-<span class="dv">15000</span>
+upreg&lt;-<span class="fl">0.5</span>
+librarysiz&lt;-<span class="fl">1e6</span>
+
+name_results&lt;-<span class="kw">paste</span>(fractionNonOD,OD,ODdif,<span class="st">&quot;_&quot;</span>,<span class="kw">as.character</span>(samples),<span class="st">&quot;_&quot;</span>,<span class="kw">as.character</span>(DEperc),<span class="st">&quot;_&quot;</span>, <span class="kw">as.character</span>(upreg),<span class="st">&quot;_&quot;</span>,<span class="kw">as.character</span>(librarysiz), <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
+main&lt;-name_results
+
+<span class="kw">set.seed</span>(<span class="dv">123456987</span>)
+expr3&lt;-<span class="kw">generateSyntheticData</span>(<span class="dt">dataset =</span> name_results, <span class="dt">n.vars =</span> genesnum,<span class="dt">samples.per.cond =</span> samples, <span class="dt">n.diffexp =</span> DEperc*genesnum,<span class="dt">repl.id =</span> <span class="dv">1</span>, <span class="dt">seqdepth =</span> librarysiz,<span class="dt">fraction.upregulated =</span> upreg,<span class="dt">between.group.diffdisp =</span> ODdif,<span class="dt">filter.threshold.total =</span> <span class="dv">1</span>,<span class="dt">filter.threshold.mediancpm =</span> <span class="dv">0</span>,<span class="dt">fraction.non.overdispersed =</span> fractionNonOD)
+
+<span class="co">#Extract information of interest from simulated RNA-seq data sets</span>
+expr&lt;-expr3@count.matrix
+conditions&lt;-(expr3@sample.annotations$condition<span class="dv">-1</span>)</code></pre></div>
+<p>Secondly, several differential expression analysis are carried out in order to testing the performance different methods between them:</p>
+</div>
+<div id="differential-expression-analysis" class="section level1">
+<h1>3. Differential Expression Analysis</h1>
+<p>The performance from several differential expression analysis methods can be tested through several graphical representations. Thus, the first point is estimating differential expression through different methods, such as dEMO test edgeR {#edgeR}, DESeq {#DESeq} and NBPseq {#NBPseq}.</p>
+<div id="demo" class="section level2">
+<h2>3.1. dEMO</h2>
+<p>At first, as it is suggested in dEMO paper, RNA-seq data sets have to be normalized with TMM method. Then, dEMO test is carried out:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#TMM normalization</span>
+TMMfac&lt;-<span class="kw">calcNormFactors.default</span>(expr,<span class="dt">method =</span> <span class="st">&quot;TMM&quot;</span>)
+exprT&lt;-<span class="kw">t</span>(<span class="kw">t</span>(expr)*TMMfac)
+
+<span class="co">#dEMO test</span>
+<span class="kw">library</span>(dEMO)
+testdEMOTMM&lt;-<span class="kw">dEMObuODlmTest</span>(<span class="dt">expr=</span>exprT, <span class="dt">condition =</span> conditions,<span class="dt">original =</span> exprT)</code></pre></div>
+</div>
+<div id="edger" class="section level2">
+<h2>3.2. edgeR</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(edgeR)
+edgeR.dgelist =<span class="st"> </span><span class="kw">DGEList</span>(<span class="dt">counts =</span> expr, <span class="dt">group =</span> <span class="kw">factor</span>(conditions))
+edgeR.dgelist =<span class="st"> </span><span class="kw">calcNormFactors</span>(edgeR.dgelist, <span class="dt">method =</span> <span class="st">&quot;TMM&quot;</span>)
+edgeR.dgelist =<span class="st"> </span><span class="kw">estimateCommonDisp</span>(edgeR.dgelist)
+edgeR.dgelist =<span class="st"> </span><span class="kw">estimateTagwiseDisp</span>(edgeR.dgelist, <span class="dt">trend =</span> <span class="st">&quot;movingave&quot;</span>)
+edgeR.test =<span class="st"> </span><span class="kw">exactTest</span>(edgeR.dgelist)
+edgeR.pvalues =<span class="st"> </span>edgeR.test$table$PValue
+edgeR.adjpvalues =<span class="st"> </span><span class="kw">p.adjust</span>(edgeR.pvalues, <span class="dt">method =</span> <span class="st">&quot;BH&quot;</span>)
+testedgeRTMM&lt;-<span class="kw">data.frame</span>(<span class="dt">FC=</span>edgeR.test$table$logFC, <span class="dt">PVALUE=</span>edgeR.test$table$PValue, <span class="dt">ADJ.PVAL=</span>edgeR.adjpvalues)</code></pre></div>
+</div>
+<div id="deseq" class="section level2">
+<h2>3.3. DESeq</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(DESeq)
+DESeq.cds =<span class="st"> </span><span class="kw">newCountDataSet</span>(<span class="dt">countData =</span> expr,<span class="dt">conditions =</span> <span class="kw">factor</span>(conditions))
+DESeq.cds =<span class="st"> </span><span class="kw">estimateSizeFactors</span>(DESeq.cds)
+DESeq.cds =<span class="st"> </span><span class="kw">estimateDispersions</span>(DESeq.cds, <span class="dt">sharingMode =</span> <span class="st">&quot;maximum&quot;</span>,<span class="dt">method =</span> <span class="st">&quot;pooled&quot;</span>, <span class="dt">fitType =</span> <span class="st">&quot;local&quot;</span>)
+DESeq.test =<span class="st"> </span><span class="kw">nbinomTest</span>(DESeq.cds, <span class="st">&quot;0&quot;</span>, <span class="st">&quot;1&quot;</span>)
+DESeq.pvalues =<span class="st"> </span>DESeq.test$pval
+DESeq.adjpvalues =<span class="st"> </span><span class="kw">p.adjust</span>(DESeq.pvalues, <span class="dt">method =</span> <span class="st">&quot;BH&quot;</span>)
+testDESeq&lt;-<span class="kw">data.frame</span>(<span class="dt">FC=</span>DESeq.test$log2FoldChange, <span class="dt">PVALUE=</span>DESeq.test$pval, <span class="dt">ADJ.PVAL=</span>DESeq.adjpvalues)</code></pre></div>
+</div>
+<div id="nbpseq" class="section level2">
+<h2>3.4. NBPseq</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(edgeR)
+<span class="kw">library</span>(NBPSeq)
+NBPSeq.dgelist =<span class="st"> </span><span class="kw">DGEList</span>(<span class="dt">counts =</span> expr, <span class="dt">group =</span> <span class="kw">factor</span>(conditions))
+NBPSeq.dgelist =<span class="st"> </span><span class="kw">calcNormFactors</span>(NBPSeq.dgelist, <span class="dt">method =</span> <span class="st">&quot;TMM&quot;</span>)
+NBPSeq.norm.factors =<span class="st"> </span><span class="kw">as.vector</span>(NBPSeq.dgelist$samples$norm.factors)
+NBPSeq.test =<span class="st"> </span><span class="kw">nbp.test</span>(<span class="dt">counts =</span> expr, <span class="dt">grp.ids =</span> conditions,<span class="dt">grp1 =</span> <span class="dv">0</span>, <span class="dt">grp2 =</span> <span class="dv">1</span>, <span class="dt">norm.factors =</span> NBPSeq.norm.factors)</code></pre></div>
+<pre><code>## Create NBP data structure.
+## Use specified normalization factors.
+## Thin the counts to make library sizes approximately equal.
+## Estimate NB dispersion.
+## Perform exact NB test for differential gene expression.</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NBPSeq.pvalues =<span class="st"> </span>NBPSeq.test$p.values
+NBPSeq.adjpvalues =<span class="st"> </span>NBPSeq.test$q.values
+testNBPseq&lt;-<span class="kw">data.frame</span>(<span class="dt">FC=</span>NBPSeq.test$log.fc, <span class="dt">PVALUE=</span>NBPSeq.test$p.values, <span class="dt">ADJ.PVAL=</span>NBPSeq.test$q.values)</code></pre></div>
+</div>
+</div>
+<div id="testing-differential-expression-analysis-methods" class="section level1">
+<h1>4. Testing Differential Expression Analysis Methods</h1>
+<p>In order to evaluate the performance of different DE methods and compare between them, it is possible to face this issue from two different points of view. One of them is based on the capability of a method to detect true DEGs ahead false DEGs, and the other one is based on the capability to control type I error. At first, p values from different DE methods carried out above are stored into dataRoc object:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataRoc&lt;-<span class="kw">data.frame</span>(<span class="dt">EMO=</span>testdEMOTMM$ADJ.PVAL,<span class="dt">NBPseq=</span>testNBPseq$ADJ.PVAL,<span class="dt">edgeR=</span>testedgeRTMM$ADJ.PVAL, <span class="dt">DESeq=</span>testDESeq$ADJ.PVAL, <span class="dt">DE=</span>expr3@variable.annotations$differential.expression)
+
+dataRocp&lt;-<span class="kw">data.frame</span>(<span class="dt">EMO=</span>testdEMOTMM$PVALUE,<span class="dt">NBPseq=</span>testNBPseq$PVALUE,<span class="dt">edgeR=</span>testedgeRTMM$PVALUE, <span class="dt">DESeq=</span>testDESeq$PVALUE, <span class="dt">DE=</span>expr3@variable.annotations$differential.expression)
+dataRocp&lt;-dataRocp[expr3@variable.annotations$differential.expression==<span class="dv">0</span>,]</code></pre></div>
+<p>The followings analysis were carried out in order to evaluate differential expression methods in terms of their performances:</p>
+<div id="rocs" class="section level2">
+<h2>4.1. ROCs</h2>
+<p>The first point is studied the capability to detect the larger number of true DEGs (True positives) ahead of the less number of false DEGs (false positives) at the same time significance level varies. To do this above, we employed the Receiver Operating Characteristic (ROC) curves and the area under the curve (AUC), both pvalues=[0,1] and pvalues=[0,0.05], where true positive rates (TPRs) are plotted against false positives rates (FPRs). Regarding how interpreter the outcomes from ROCs curves, on one hand, the closer to top left corner passes the curve the better performances are obtained and, on the other hand, the larger AUC value the better performance are obtained too.</p>
+<p>The below functions compute the outcomes through resampling RNA-seq data sets, where the number ob resamples are stablish with the argument <em>resample</em>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ROCcurve</span>(<span class="dt">dataRoc =</span> dataRoc, <span class="dt">main=</span><span class="st">&quot;ROCs&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAA5FBMVEUAAAAAADoAAGYAAP8AOjoAOmYAOpAAZrYAzQA6AAA6ADo6OgA6Ojo6OmY6ZmY6ZpA6ZrY6kLY6kNtmAABmADpmOgBmOjpmZjpmZmZmZpBmkJBmkLZmkNtmtrZmtttmtv+QOgCQOjqQZgCQZjqQZmaQkGaQkJCQkLaQtpCQtraQttuQtv+Q2/+2ZgC2Zjq2kDq2kGa2kLa2tma2tpC2tra2ttu229u22/+2///bkDrbkGbbtmbbtpDbtrbb25Db27bb29vb2//b/7bb////AAD/tmb/25D/27b/29v//7b//9v///8NayLwAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAP2klEQVR4nO2d+2PTOBLHE0opOVrg0gPKda/lFnbv6JHSW0rBpD3CQvpI/v//5zR62JIsexxJdmIx3x8gjhNZ+VSP0YwegyWpVgPP7y2uzj9+Ly6vzg6/V3+4z/IFdLc/uPe54iopESBEHoC+HDC9GA2Gjw+Ung0IUKHr0cChnfh52wj5VLGJg892ogXIC9Di/Pz8A6tib89zzaJnbFMUp5FOWJHsoHTlC+inUTRAs0TLUwCgxYfcDtp9lGyL5A9obppDBMiSbS4+oSpmKgMoH/YHw3+csYHG8DhmpjZJ3t38q8FgzI3qYw7rQaIFKMRQHL7jaMaCVqpFKNCSnotR6pwGq7YkINZUQ+ViV6nWsYA2CABJMgmPzLx7sQlvgwpOBMhSJpod0Y3N0+3GvAGxQgNQGJp7F//bp0a6rDkfXkAPD4L6lqQCBquXz3jz84zzOYqXpc1SBHfH5cHB4bfwZDZU5DBDFA3QFfVidbp5TXaQrtuz3d1dreGZjro0FPOec++TuJ7usqu9E1mGF9NHcPkpzsO84mKnMoO/yOvX3XoUFSBpXIh+NA9e5pfjKA8Li6zyPExHGqwuVAAC81S7Amteu4zigfEANAceh+dnI1FseHHajlSgG4kx4AMb4UrIwApjl5cj/gdjl9snrFF8JXh9YdVt+CQgdx6AJrI+3exDjk47Lj7LAhDLyYPv7EJa8ZyXHD2zD/3z6TfhGA6r/6sDKtyH4Gmddl18llYJYmNCNQycMBDa5ZIPGHe+L6ch7dHqgKSzVWRwyErwX7u2gLRmZgyZUL8+YxnTLkUOty/CHuYFSJZYGNCvI55RAGLFoxaQ+OT9kPmToYDWMYpXgKAxXhpVbPjOrGLLG9HnD//j/bBQQHGMjdXE26DF+7xbr2ikRd9189ujQYg7LxDQWtxAspGWPk3ZzS+mzm6ef/7XgG4sENBaRmCqFxPuXq3JhtwYhuKcdyGsnq2tBK0V0LUYARZDDV6n8sunS2nFBrWUfQYERQgq2eLyOYOwe2QOVkX3Hjxw7SOgTuVnKIr5rcZM11RnLHoBcinVskSAEHkMVq/OXaIq9pOKACEiQIgIECIChKingLoLjfUcUPuhsd4Dajs01l9AHYXGeg6o/dBYzwG1HxrrLyCllkNjYYBu+SB10f0EvO5CYyGAuLHB6vbdftfB5w5DYwGATlXjt4bwT3ehMX9A0Dts/z6Sc6U7nmjfXWgsaEnmESs8KhbVbYi+u9BYwGIW+OMJQN2vF+suNBawHAoeKQHJZWPdqbvQWOCCOgko4QgZAULU0yrWnUIa6XEOKKP1YiXNpY0o1z7TsnBbYGwMTwAQGLTJ1rAAS9oIQSe74DBoe5zCYO18sNqdgtwdN6/BBhs+CZyKvNHqqcOsO3nbQf9NtVW2FGBJb5/8DIwCABXDwZTl3QZdSk9myFqsPiikmz97JBilutc2V2BU42wkfefJMgru5m9eC0a0C161vna86rlTRQAk3J0EqEKcTsItdRggXrmgAUrXHgoApJpnHv5NVt5jMdnBJ1u1lIKGGsmb0csgQHtJVy0l7yqW6uIVW+QwQ0SAEPmuWS0tqwuzpAcuead2tw9z8Ob3Pl+PIFw3gWl58kV+a/GKhzozd0Bv4HjV/OnRANXDCNgDk0ehGJS5mJwzfFe8ULdUTMYd8AwC9Hx37zP8a2ovrAQ1fK+Z5pL6caa45C/yW7wEXY8qIuYhgFpRGyVoyavS0lWClhDVEzuFu6dPJw7obl9WHNH0ZKoNyqANkrdkGzRxx4TDAUU+4zAuICAhfju8mENgfMKKEH+hbklAd/vOWQXhgCIf4RcZEJ+CqybmDH/jTNgbf8Bb8pYExC5dlSx5QG7NG2cyCFC8Mw7b6ubL4m2QsIGa5SwkF22ccdh6CZpX2zwuhVWxFs447KaKNVcYoBbOOEwLECjyxN/0AEU+49CRja1+A4osOxtbTAFZm2gDUdViyhNkmvW3GwKoopt/yOj8+PEjBJBc6bKTv+aaD6TTA8+Z41VTrejuWMxgv6GPyBmRejY4nkHQ305C4SNTDdCE2yLKhm6Wn3YBqcAiV110sciGwhMDEEdRADLIwIhjLF8M//0Xq1B14w+6eWZB3K4s23k2AI931nIpKPC/UcVyQjBmvR7BGXtqFOvOT5ttkDhGc1eORvhkq8qtg1U2ND5W1rZqZSWnoICfTDXSUFyu5S7qtlM2WwcgvlewHjq7HFW3VDIbDzU+MUoQB2T6M8QyJcspex2zijVVVsJRs3uwzAYrQKX3fFRRxdTde58tp2yrgGCpsSME7Vroax9DZnfzD3U+8RtpUZ1Mz6ssSq0AEqdDib1DyqaFayxSPT4R2diKDMjq5lUvNof9PY5Vllprg0QVUr6PRjBQQD/K73lJGYrjpWUowmvuqDecstejFgDJDoFjkqfSGiq2QyhUfdJfbECOoYZYQZqX9twpC83R31uoYuJ0XkCz4143PynRkB92KTKgVdVCGyQLCJSjY3fdgVsP9MYbtoqoGgbxbDzcKr/XjVoAJJFkedEtNy68+R4eyK2VhaVY5RTm2dhKEJA8xsbd+k5t57V9EqLVzZs1rOcOM4FEtSoV6+bVREaJpya2mB4gYQfKJkjtoOH63NfzMzYSOzy/qPV3pAeIb9Jz8asIUr4fhK6bTxCQcgiNxavAjRcEIMd7a1IMS1rY0KzpAUBPAx34kI2B5YXuO6Dl4vLgJTgJ7/4WvhKBe1i3zNz0HtDqqhuLDXgVGxjvrU8bAki3g9IEdMvPQ2i8z2RNCdo0RQE0fSRTa3xW+O2sDmZNXrxuRUkvANCpBjy0F8Py0kdAMBYdPmHDUL5sLMYGVGkBAjNIlhs42jjGBkJpATKGX9VjsYahZywv/QNkelSrdsFrHHrG8tI/QE1mua4QesbykiSgVULPWF76BwivYiuFnrG89A8Q3kivFHreXHkDgnCSMqDhyHC78jQJPfdB/oYiBOS2385msw/PXIYiGlnl+xK4F5bX3KpWzZfEyT/5ZsoryR+Qto2iq2BggFTIY/hLKeWaW9Wq+VK+NMBntnuIwywfjA0dQzEk9Dwv4DoqYtWtatV8SVs64VHBw9wdV29YB/7yo/NebegZ2mvYvvNreRlMza1qIemBu4HHoFbvI9rzStWGnjNFrzzvoeZWterTk8i8+ogW3XY1oWet/tkmVM2tajVLz1XrUfkB4j3G/UPElVgdembFPj/xwsp1za1q1XyJAQtyxfgAyltnrJupDD3r02UmZrNac6ta9ekFGac+gLT1Yuiz3aFnPddZ9Q/KVgBU9SV+KUp8U8ewIQ9A0Ppun8xmsBenp59M/xHWn7jmlld6cBxS1q0dlPff/mOrbgG9yAu8xxK31QFpgyzvwxC6AyTsfRiA3J66RkSoVgekHZblfZxGx4DG+Z0uunltQOW9LrPTKlb8ERv3iprWA6jDXmyi3fLp8tcGqCs7KOsloA4taZ1d1htAHY7F5BFtXP1pg7oczU/4UaOgqY8htCZA3H9zUe0Pct/ySo8b/hfSDurCHwR2kNyUQt+fYsVtBkoewMK8iuNRLNLLiludeBRL6539rPgvlg9Zsz/tW7HS89pWfm2A7CiEfpptjKiGnt4tnN8w9DsExGMsdnXuUqp7u65zpmQvRIAQESBEBAgRAUJEgBARIEQECBEBQkSAEBEgRAQIUfB6MTZIXTReMNZDBa8X4zvi0VnPLp0qP5DueklOYevFtn8fyQ0qHnyfWx40l/uXfXJFx5rmLx3uYjO2yo+5OfF6rPbUoPViR6zwwJP5fIbWATV3wqrHLE5FLtYCSKw+EIB4dK4LQA3d+OoxKpK6DkAyVCcBQbRu2mS+mQ8gxWQxxVbD2PKefqeFYAOXQ0lAcPVH24Dy/a4a66cDVLf006V1AmpaxW7PYB3JUB73lwMSy0u0icTijb3SmdEmoHxKmzj8tvi4mZ54TL7bprzWklIB/JqnhgKS824koEw00mVARWsnMiQBFcsnxnmOhWyT0w0oX+wpP26l5wakzZiWqdY9NRjQXNqI8IMhK8cuQHpvMC4A6bHHY/MH2lWwVMUgGe37qoYb6bkBFfVbvqp9ajAgsH2GJwCIb0DFDUUbEN9ZCEo9zCmAIiRzlonpBHz1htpqHo6z5f2U2cg4G+mJmJXO56nvLMvpVXTzeVqiLNU/NRiQGYLmhzDp4g8sJi/JWToyp/k8HXldrDIpjVo0QLPTkfgcS0x+SL6y06sAlNcx8fn6p+byBqSvqIM67ABk0NRynlnrgCZF/uxyaBmK/HPa7GNR5+z0KgCx/ziRfIvDRk/1BwTzBWA8PxQ7BlQDur16I028osSwrz3+l+w8tAl0pbUn1lDjnaRybHzcSq/Sks5EAnPZvzR7agggQ85ejHXHqiXUy36+AS3vl635IsYkHi2r92V3rM9ClP21mV4lIPZpvj9wsfFt9VPFF1kr1yog/SApHZC2DGhcOm7KzqpjPXXe6chiYKZXCUjUMfkd5KnK/mgVkPgj3d97+fZPow0CXb7Of1HdZE03ILsEmelVD1Yz2ZuMl/VTRGNY0m8OTL10WNJZboLdlQAx3X54zf90dVMdXXPJtTbI2KdZpVcNiEE5Vo0z8tQIYzFTjrGY9qee61VMw8Rz6dqDQMtq6Zbdi9npVQNiL3ZU44w8tVtAN/tGG1QsDxA/CNbdfiplTV2XfoXLDjLSq/YHZTyfxyrpmqcGG4q3MyVWsIdHs2+ONmgiqphoQuGXaN18bmHvqJXb38VU3UpD0Ug3t6TFLvVmehogYwgoW2b5uv6p4Za0JvbYI1cjbZhGGiB9Uaf6JblK08rLgOyxmJ2eOSY+1gBx41bVz9qnRgXEewdXN5+v/j0UFV7rb6Xknktze3ivZdXRUNijeSs98zFGI5UN9JVTNU+NCwgsUaehyN0291l1mBtlHzbvgsxpDp0zy0FUZNXVkip/UP6GkV7RKEO39lQHpC/dqH1qXECRTzzcJEUrQQSoTpnXMoheKAKgxez9wHf58+YrlqGYbHA+EqDG+wH3Tt6A9DMO95rOKuihaIYZIgKEyBvQ6fYJ/qEEFGer0oQVZ7PbhBVQgghQrbz3DuqZ/Hux6Qi2co2Ylc1UQFTjhWFLp1rh4jntCZChJsepJyGypBERIEQECJHH5ibPk21vXAraYOlnEAFCRIAQESBEBAgRAULkB+hiVlKqcY31bfLWExEgRH4bTT4+KOklTV6QokYaEQFCRIAQESBEBAgRAUJEgDDVHxqfmsgnjYgAISJAiAgQIgKEiAAhIkCICBAiAoSIACEiQIgIECIChIgAISJAiAgQIgKEiAAhIkCICBAiAoSIACEiQIgIECIChIgAISJAiAgQIgKEiAAhIkCICBAiAoSIACEiQIgIECIChIgAISJAiAgQov8DbPxkniIzPPQAAAAASUVORK5CYII=" /><!-- --></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ROCAreas</span>(<span class="dt">dataRoc =</span> dataRoc, <span class="dt">main=</span><span class="st">&quot;ROCs Areas&quot;</span>,<span class="dt">resample =</span> <span class="dv">10</span>,<span class="dt">DE =</span> DEperc)</code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAABzlBMVEUAAAAAACgAACoAADoAAEkAAFgAAGYADVEAF0kAF2YAHSgAHToAIHsAIRcAIT4AIXwAKCoAKD4AKJAAKpAAOjoAOmYAOpAAOpwAOp0AZpAAZpwAZrYKAAANAAAXAAAXNEkdKgAgAAAge9shIAAhfNsoOjIoe7wogf8xZlgxkNsyUTEyUVgykNs6AAA6KgA6OgA6Ojo6OmY6WIE6ZmY6ZpA6Zpw6ZrY6kLY6kNs6nP86nf8+IAA+IQBJFwBJSQBJSTpRDQBYUTFYUTJYZjpmAABmADpmOgBmOjpmZjpmZmZmZpBmkJBmkLZmkNtmtrZmtttmtv98IQB8MgB8ZjqB2/+QKACQKgCQMgCQOgCQOjqQWCiQZgCQZjqQZmaQZpCQfDKQkGaQkJCQkLaQtpCQtraQttuQtv+Q2/+cOgCcvNudOgC2SQC2ZgC2Zjq2kDq2kGa2kJC2tpC2tra2ttu225C227a229u22/+2/9u2//+8UQ28eyi8kDq8tma8///bfDLbkCjbkCrbkDHbkDLbkDrbkGbbtmbbtpDbtrbbvJzb25Db27bb29vb2//b/7bb////gSj/tmb/22b/25D/27b/29v//7b//7z//9v///9+IgmEAAAACXBIWXMAAA7DAAAOwwHHb6hkAAARbElEQVR4nO2d+WMcNxXHBxbCfcflCDeFci2xqTHmKpfr1G2Ky1Eo1IFQHArFbsgWHMJRemy8pXYxS9bLzH+L7pFmJL0361lHGuv7Q+LZmZF3PpaepPeeNFmR5FV2t79A6EqAACVAgBIgQAkQoAQIUAIEKAEClAABSoAAJUCAEiBACRCgBAhQAgQoAQKUAAFKgAAlQIASIEAJEKAECFACBCgBApQAAUqAACVAgBIgQAkQoNAB5U9kTL2lm/x4f5EcLV07Eqf3L9LDm/P7ArEAIoieJofTdXG0cKvQD1fn9gXiAZRdMI7uOTIOH5vXF4gAEEVR3OnT/4ekIm2Sw1GfVRpyuHCtKCZPcF5MI1qplmhtG2a936xn524W+S65beXIPItVLICKHfI/Oejxh2O8yOG5W+yin6+8Jq4fl+1xKGradE01Su0sVrEAYkTIo14Qn+8QNtqhdvkHj+jFvH7dc7M4pJfe5B/pZ7GKAJDUqv5opP087XjSg+sXmcEacstEMK6yG3htk2exigfQhSMMoHxLWfQhb0rkKtWwtLNYxQKIGuPCaGK9p+1NLFt46mBNAzQuxwn6WawiAESs8bOqW3cY6WUxVOSVarpm1iA5BtDPYhUFIGZP6EOJbj7fd3XzY2Z3pJHmY8uSh34Wq0gAkSZFn00z2bTu1AeKrGZRYGUNoq1xs5iskRP6WaxiAUSejSIppxqsTanDlfLyqpEuxDiI2mjtLFaxAKJViD5WPrpEHnBx05ys7pXXb9Fmx/p0CaiYbJEWyayUdhar0AHddSVAgBIgQAkQoAQIUAIEKAEClAABSoAAJUCAggV0soDYOGsynfApeECzBcR2WosERQBohoAYm8A3mLJ7FDIgdEDsNmluvWWtuY2z3kOijQHRsdqtVQUPCBEQG5YuNCFyz6vCb+iPjtVvrSp4QHBAjB4dFfuaPaKRHnm/NzpWv7WmkAFJAQExcrSwZ9w7prVD+Mu80bH6rTVFAAgKiPErz18+Up/QVinv8UbH6rfWFDwgREBswvv83m/FsYLB4yG+6Fj11rpCBoQPiE2uXszKDI+hPgaAomPmrXWFDQgfECvyJ2VfZI6gENGx8laLQgeECIiRB/7qEW0sghV59AuiBC22YY2OVW+1KHhAiIDYbjmuoRrK4TX7wR8dq9xqUfCAMAExY+KqDBS3V0B0DEwCDRZQKEqAACVAgBIgQAkQoAQIkA/QvuwXz7KsgEbrdIgwhMZQZ0I2QEM2npdz4paiA7HKAoiSYZMY8i8dls9vJU0MsgAasilyznMdx21FB2JVHZDwvdB69Bib453tNlYHJJAMuX1OgGqfCCQ73DwnQLVPOBJhgkTc7gzLaoOI8REmSHpjzq7svdjC3pOshVGn+fyWg0YhCyDhnOSBx7NegawjaT6GJqaHAlo50xbIMRfLRxsPU2/v9MFlIDBb03TN2ukxh7A3iyJUtezuKD3mhvbFvK73aLu/7hTULqB8xzq5VXHfCC0+AtAh2gqxiFMdEDVlNJx1sB6hb8Bug25sSC1exD/TqG93jwxlgDhG34AN0Lif6UICYokSy+v1y8vMgxjH5Q5/kK5l3COx/AKbkZ6ulRkGT0TnobSPpLPlG2tZ7wfXSaXoYc3qsPflH1O0vZ9UTlCX0oHo5neiM9P2udiqzKoY+lJnTB3/w9GXE0CflrXx8x0ARFqEyP9clTNXlJx9+dBssVYrnYUmPyBqRoSvFe1y5X05Ty0xzRADRAfRE3ZSA2T7QmEIAUh0OJqF9Ut5st+4XqklFJCAvJO5ahD6q5+OfIBERyTIYD2Kon+iN/+p0pcPy+DauAuAWB6pzgkFSPCkd/2l0pd3DpDIm+Td2BjZjVFbxabspJuv9OWUyofYYqbFBzKHzY8KEDW3BApdcrX36hrSSJOrPyu7+e/WAWnyA0L0K9pdHuMO3uyVF5BYjaZWtKGGvp6+XHoofcUhANW/aWb9/p4SMvTv8AMSyQs8k7S36ScjxADJbt4EpOXsfiTL3q41WNs3wwPKWA2qf3wKgKRGGxuXX/NdUIoCKrt50xL/Vf8K77JaNHwbAJ8ffnyYDxZQA72U6d189jntVP5D8qvf/Pui+Ne3MrCJgQIBtaL2Ab2QZe+T3fxPs+yThZqzFP/9qP4Q9kFDK4DaeZLK93GVejwYPEdaDLKBFcV/suwDspt/JsvuK0pA5NQ7pQfl4y128w4b1IogQCz/nPytp2sLyEAEofAe2c1/wwRETNB9k198gp37fpsDRXsv1ooAQLuyMchnhPWiWdvv1U6RCvU1OQp4a6sj6XablVGy5adS9GkWft0XYyHcXPVl+vjSM59lX9RO/SHL3q2x05rYfOxHG/ICoi7XTREBRPuDKNQ3PU9/+t93MqOa5D+jAJb/LIaLrzthL3Y6AiardHYhQqRYf9BLrAbtyRqkdfN8nPiVH2XnfkV/eH30gITjQgDCxiFeMG2Q3s3vmKein6wKB4cAhHV3aH1575tmL0YAfUrSeVsH3B0zA3J180M2B+P6WAcAzdbEPN18xd0RPSDaJFYVoCHSSHu6eTbV+Az54W8d6ebHYowoYhsn7eZZGW95XlyTveGW/wuFIS8g2i/3rlFALEURN1B0d/O8F6On/kl/OKm743TkH0kbLkDkVMPTzZvORjvvuADpPsAGk1VHN0/X+d+Ws/kPdwMQzSmk8/kePkXR3c1XvNUd6MVmkrub7x6gXbYjTUO5u3kPIO3T5r9xrkIMFBvK083LHJr8GWcFiqoGzba+x9PNl2F7OueI30g7Up0Bebp5Hrbnez196cRRjdMRJjbfTJ7ZPHMp0VTyd2TZAx1wd7C8+IXtw2YlEkDvl+sNflcDtEpN1MrfmdM+ekD5lY2HjOaCanCkm3+vTGV93JzNEzjfltZ53IFu3sw1wAJ6uZyUUJ+2Pptn/bw4Oe5ANz+9tGhq6RaiRBGbL0RvtVo5dU7MWLpQg2bT0OzmdQovajNeJ6DQNB9ApSgFLbKq616oKA3biS84eRFgAQeXUDaIVI0vyG7+e2r7VDZAfNwE9HVEadgvd9cB5df7SCOtchTL9QYCUNXodwjQhG8K2yTLlao6mZt9MUvQgPhGhZnx8i6PPGueZl8OFTCg411uUHq+nYQNeVbNzbygLlhAI7ERaJNVymytxp513aXn1AxfrtEF8wCU70oHcrNJfW21T5lcNOui3hABHVziTWvloLFb6HZlvZiWfVU9hVRwgFivLuzyDH6zyu4BenpaNzYW4CMWscP7md84SKgKSP/7J0CFrQYtXZMHCVBRsUFi6NyjrztJgLgqRjwXQ6Dzm/9OgJjqvdzxjOOgjso7kl5Br0ToroC5mPetLmdC7oGkGFNns0Tqw9Qrs/yxfSNtMbC+W6YoPxgMBnut1eDJ1kwPAkxFaDW6K4DkrMfpcclfGdj0nLz4+Pri4qK2XnK/X3sQqAgmcDKX76PCPi1LpaQ5p7i18J3R8+a75q3sjVlVQP4ihEILSDHlfPXC+UW6ARaVxQ3pf7py+QNz0LFN5mqc4wW0w4aqAgobc9SzKUj7oK3w/u3B4Crde99oH2PWNAcy5MCqUz3b0luEVIiA6ONp+1uy5mJxtI376qohfwuSktyMb7JGq9Cuq5n6ipAKEJDciLjUjq2RybdkySs0hOUqN+oO37dWH6AIpQAB1V9DTI1F7cvv6BEkM1xSuurI572L7CViNnmKUAoQ0E499GHJ6TK9Da4jZodd27D5ilAKD5AtuGj56+IBOUOVkQKyfVHLZ+ZqWnMXHxOQMxLnK0IpWkDi9ShcE5ODAcgT6/YUoRQvIJrI1mMTafbuTP2vbwDyzJQ8RSiFBwhpg1Q4cpEPf/V+HAvIU4RSeICQvVghN9flcxHj4dCA3EUoBQgIOQ6iGj1EH/B8NSCJB+QsQilAQNPavmnWkbS/hN42m1fd6MufapMspAIEVN1M0DUXcws1TUcqREBsNq88vY7ZPJd9m6NGgICdkoIEpPxB91/i/iDHuytc2xyhXIX+IpSCBITxKBYzbXPUvIhAAcE+6dm2OWpeRKiAChHVcPc8M21z1LyIgAEBQm5z5LPBmCKiBYTbg8Vrg1FFRAsItYuP3wajiggQ0PGhTdU2gnk6wAZHCgg5ykO0D8gGR9rEsMNgeJsj0AZjdkoKE9DSRk0PV/+64DZHcAXB7JQUJiAyOgRzt8BtjmATg9kpKTxARXHAcknB3C1omyOEDUbslBQioEIyWrjmZQRsc4SxwfBOSYECIhqxDLclb36bf5sj1G510E5J4QJSOcl+Rh7NtFtdVSEDKuiknjmEGr+sk988y251VQUOqJCMeu73vdKQlt3njt2t7uDKxuWInPZ1TexLFfnbLYaex/fZ4Hy3z8vkG/e4XsQXPiDRyuqAeOBYvnDQ4ZF32uCxXPCuqtmCtYTAAR1zOraB4x3+hAxT89dvMq4M0A4dThxSB6a1lwsZ0PH1votOob3QjD4Y+j1xQvQ23ujuiPRgmmpla6bBAvLTUcNAWhMea754q4zeDmXds0S8qcIEBNEpFBLx8jLrTKsW/Cl31VI0ylSJaPKDislVkE6hkIh8VkfOTE1iOFBiKW+8U0/FpwoPEH8ucDrPn0xmxNpmWlbHEudiYLmgF1hTmIAWHgHDotxFKEyQ8I1VrnjlWdbDbw8GV2im1OUbWzJLqoShTFBcgCyypeAt7D3J3xX3rHWmRUuSCcBD6buXO/eoNQvaxivdAiSvW+U/WXp5YwLPzbIYDigbpFWbaIx0fqXub7W5XMUYmjwUBWSZqpm5fNxKSVsl0+q1XHtbKy1CBIRXPtp4mE4hpg9aZ/u2NGj5mawu5foDac2qihkQIB8gvmPP4a5qupO1iHzSLcmWJ64ssdqxh16Rj7acDoE4ABG7ZNogtpvMeWCspOeJi5T70m6PmQXjqUe+FR3hASpbxrGKN1fGKHLBJbAfEVuowd+Cus+n/vQ/OeHKy3eAslCcw2MWMCCNSgWQ9r4pr5OD1xKRJ05qCAVhG+vkvxw4/ZUxAqIdzsK1w0Pq0/en3t1ZVySpc2OWVL0YAam0ae9aHq4D5lE8z8cB+ZWnGjvuIwSk9U4zbZ7uUK0j4IoQkNZQGm5cWf8d7o5AKk5ADuPd3u8o1UlAYCL5WQcEOgQSoATI8nkp1cS2hEfxap/uVJGaWFVDw6NoW/V7tgGNM9fOE7ED4osEtdWCN/omIO1ztaCwtqrD5lEsi4gaEGhhsU7rmsOsepAA2Y+iBgSO8rDrCT07T0QNqD25d55IgJiYZ77cecJsb/6OoFSXAZk7T+iuMqwZKzoA6ODKxsYjrgzMikdRqfuAjv+4sU1NrszSdL5Q2PAoKjVYNx4nIBbV6D2q1QTXNlwnVpSAZFRjk6YAL23fuORoHm0oRkAsqrE92CpNryuwXoA7T4CKEZDMw6AVSYxtXN57aOeJQ2Z6fPQiBKRGyOMM8t77Vz2Pyj7O/QqsCAGph9VywuzDYO+qZ20I4OsH4wSEmyd4Vz3vi0HkktxxOJrkBVBoQL5Vz2yQrV5qMIk9/cUQFpBvSea0ukPnnXi2CQSFBTT1LOod1ypMh1Lw2gBkWZjRnSTOFpqYbTPLaNKAQaGdOe5Vz7ZhUTSJ5KDQvgr3qmdPi6yqy4Dcq567DQjvzDFQVjyKHQbUQK5VzwmQkn3VcwIEKAECpIX3lboT9kGvl3Kr21GNBk/XQhFnE1C3wz71p2Pu+9l2vwEVIaCq+Nofx+t7Tqz4AbEXGzgjqydW7IDmW32K6AHNufoUkQOae/Up4gY0/+pTxAzoNKpPETGgU6k+RbSATqn6FLECOq3qU8QJ6PSqTxEloCnfcBoz02xBsQI62Wy+gRIgQBECauDMaUERAjpdJUCAEiBACRCgBAhQAgQoAQKUAAFKgAAlQIASIEAJEKAECFACBCgBApQAAUqAACVAgBIgQAkQoP8DlH/YbnpMH2cAAAAASUVORK5CYII=" /><!-- --></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">areasdata&lt;-<span class="kw">ROCAreasData</span>(<span class="dt">dataRoc =</span> dataRoc, <span class="dt">resample =</span> <span class="dv">10</span>,<span class="dt">DE =</span> DEperc)
+
+<span class="kw">ROCAreas005</span>(<span class="dt">dataRoc =</span> dataRoc, <span class="dt">main=</span><span class="st">&quot;ROCs Areas 0.05&quot;</span>,<span class="dt">resample =</span> <span class="dv">10</span>,<span class="dt">DE =</span> DEperc)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="fdr-curves." class="section level2">
+<h2>4.2. FDR curves.</h2>
+<p>The previous criteria for performance evaluation based on ROCs and AUCs are enough efficient. Nevertheless, neither ROCs nor AUCs reveal if are either False Negatives or False Positives the guilty for a non-perfect discrimination between non-DEGs and DEGs. Thus, the next step was evaluating the number of False Discoveries (FDs) as the total number of discoveries increases, for which we employed the False Discovery Curves (FDCs) where the number of false discoveries is plotted against the total number of discoveries. Here, the more downer right the curve is plotted, the higher is the performance, since that means the lower is the number of FDs committed for a let number of total discoveries. Since the mainly concern when researchers analyze differential expression is usually identified those genes which show the higher evidence of differential expression, we have represented the FDCs in the range of total number discoveries form 0 to 1000.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">FDRcurve</span>(<span class="dt">dataRoc =</span> dataRoc, <span class="dt">main=</span><span class="st">&quot;&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="type-i-error." class="section level2">
+<h2>4.3. Type I Error.</h2>
+<p>To face the question about how well the performance is in terms of controlling the type I error at given significance level or threshold, we evaluate the observed rates of genes that are identified as differentially expressed when they are truly not differentially expressed. Thus, we removed all those genes which are truly DEGs in order to get several simulated data sets where there are not any DEGs. So, we evaluate the false positives rate, that is, The number of genes are falsely identified as DEG divided by the total number of genes which are truly non-expressed. The aim is evaluating the ability of the methods to control Type I error and when a significance level <span class="math inline">\(\alpha\)</span> has been pre-establish by analyst. Good outcomes have been obtained if false positive rate is near to <span class="math inline">\(\alpha\)</span>, since probability calculus sais we expect identify as DEGs a <span class="math inline">\(\alpha\)</span></p>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
