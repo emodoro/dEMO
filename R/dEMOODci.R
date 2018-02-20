@@ -3,7 +3,7 @@
 #'   log2(proportions ratio) or log2(FC) where proportions belong to negative
 #'   binomial population, such as RNA-seq data sets. Overdispersion estimation
 #'   is carried out with \code{\link[edgeR]{estimateTagwiseDisp.default}} function.
-#' @details \code{\link{EMObuODlmTest}}  function is employed when data sets came
+#' @details \code{\link{EMObuODlmTest}} function is employed when data sets came
 #'   from RNA-seq assays, where each row from expression matrix from RNA-seq
 #'   data sets are dependent to the other rows into the same column (sample).
 #'   Conversely, data sets store several rows where each of them does not came
