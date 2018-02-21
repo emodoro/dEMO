@@ -1,13 +1,24 @@
 ---
 title: "dEMO. An easy work flow"
 author: "Enrique Perez-Riesgo"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{dEMO. An easy work flow}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    toc: yes
+    toc_depth: '3'
+vignette: |
+  %\VignetteIndexEntry{dEMO. An easy work flow} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
+
+```{r setup, include=FALSE}
+require(knitr)
+# include this code chunk as-is to set options
+opts_chunk$set(comment = NA, prompt = TRUE, fig.height=4, fig.width=4, fig.align = "center",echo = TRUE, message = FALSE, warning = FALSE, cache=FALSE, tidy=TRUE, tidy.opts=list(width.cutoff=60))
+Sys.setlocale("LC_TIME", "C")
+```
+
+\newpage
+
 #1. Introduction
 dEMO method allows both estimating the confidencial interval of fold change and testing the differential expression from RNA-seq data sets.
 Here, a comprensive differential expression analysis work flow is proposed. Thus, this vignette is split into different points acording to several important concepts in terms of RNA-seq data analysis. Data sets employed belong to [Airway](http://www.ncbi.nlm.nih.gov/pubmed/24926665) R pakage. 

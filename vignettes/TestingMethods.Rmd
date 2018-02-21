@@ -2,7 +2,10 @@
 title: "Testing performance for different differential expression analysis methods"
 author: "Enrique Perez-Riesgo"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  html_document:
+    toc: yes
+    toc_depth: '3'
 vignette: >
   %\VignetteIndexEntry{Testing performance for different differential expression analysis methods}
   %\VignetteEngine{knitr::rmarkdown}
