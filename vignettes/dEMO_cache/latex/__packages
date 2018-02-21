@@ -1,4 +1,5 @@
 base
+knitr
 BiocGenerics
 S4Vectors
 IRanges
@@ -11,13 +12,3 @@ SummarizedExperiment
 airway
 limma
 edgeR
-dEMO
-sm
-compcodeR
-DESeq2
-locfit
-lattice
-DESeq
-NBPSeq
-pracma
-knitr
