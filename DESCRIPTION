@@ -12,7 +12,8 @@ Autors@R: person("Enrique", "Perez-Riesgo", email = "epercamh@gmail.com",
     role = c("aut", "cre"))
 Imports:
     Biobase (>= 2.36.2),
-    edgeR (>= 3.18.1)
+    edgeR (>= 3.18.1),
+    pracma (>= 2.1.1)
 Depends:
     R (>= 3.4.2)
 Suggests:
