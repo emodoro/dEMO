@@ -7,7 +7,7 @@ Description: dEMO method: This method allows testing Differential Expression
     negative binomial distribution, and a normal approximation  This package
     also stores several functions which allows evaluating the performance 
     from different differential expression analysis methods between them.
-Version: 1.0.0
+Version: 1.0.1
 Autors@R: person("Enrique", "Perez-Riesgo", email = "epercamh@gmail.com", 
     role = c("aut", "cre"))
 Imports:
